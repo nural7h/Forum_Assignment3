@@ -1,0 +1,122 @@
+﻿@page "/ViewPosts"
+@using Domain.Models
+@using HttpClients.ClientInterfaces
+@using Domain.DTOs
+@using UIComponents
+@inject IPostService postService;
+
+
+<link href="../Pages/ViewPosts.razor.css" rel="stylesheet" />
+
+@if (showModal)
+{
+    <Modal ShowModal="showModal">
+        <div class="card">
+            @if (posts == null)
+            {
+                <label>Loading posts...</label>
+            }
+            else if (!posts.Any())
+            {
+                <label>No posts</label>
+            }
+            else if (post == null)
+            {
+                <label>Loading Posts data..</label>
+            }
+            else
+            {
+                <h3>Title: @post.Title</h3>
+                <div class="form-group field">
+                    <label>Content:@post.Content</label>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(msg))
+            {
+                <label style="color: red">@msg</label>
+            }
+            
+            <button class="btn btn-secondary close-button" @onclick="CloseModal">Close</button>
+        </div>
+    </Modal>
+}
+
+
+<div class="post-container">
+    <h3 class="post-title">ViewPosts</h3>
+
+    @if (!string.IsNullOrEmpty(msg))
+    {
+        <div>
+            <span>@msg</span>
+        </div>
+    }
+
+    @if (posts == null)
+    {
+        <span>Loading..</span>
+    }
+    else if (!posts.Any())
+    {
+        <span>No posts to be found</span>
+    }
+    else
+    {
+        <div class="posts-container">
+            @foreach (Post post in posts)
+            {
+                <div class="post-card">
+                    <div class="post-container-single">
+                        <label @onclick="() => ViewPost(post.Id)" class="post-title">@post.Title</label>
+                        <div class="post-info">
+                                Posted by @post.User.UserName
+                            </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+@code {
+    private IEnumerable<Post>? posts;
+    private string msg = "";
+    private PostBasicDto post=null!;
+    private bool showModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        msg = "";
+        try
+        {
+            posts = await postService.ViewAllPostsAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            msg = e.Message;
+        }
+    }
+
+    private async Task ViewPost(int id)
+    {
+        msg = "";
+        try
+        {
+            PostBasicDto result = await postService.GetPostByIdAsync(id);
+            post = result;
+            showModal = true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+}

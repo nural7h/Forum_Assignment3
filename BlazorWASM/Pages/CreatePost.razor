@@ -1,0 +1,102 @@
+﻿@page "/CreatePost"
+@using Domain.DTOs
+@using UIComponents
+@using HttpClients.ClientInterfaces
+@using System.Security.Claims
+@inject NavigationManager navMgr
+@inject IPostService iPostService
+@inject IUserService iUserService
+@attribute [Authorize]
+
+<Modal ShowModal="showModal">
+    <p>Your post has been added successfully</p>
+    <button @onclick="@Proceed">Ok</button>
+</Modal>
+
+
+<h3 class="section-title">Create a Post</h3>
+
+<div class="card post-form">
+    <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" @bind="title" class="form-control" id="title" />
+    </div>
+    <div class="form-group">
+        <label for="body">Body:</label>
+        <textarea @bind="context" class="form-control" id="body"></textarea>
+    </div>
+    <div class="button-row">
+        @if (!string.IsNullOrEmpty(msg))
+        {
+            <label class="error-message">@msg</label>
+        }
+        <button @onclick="Create" class="btn create-button">Create Post</button>
+    </div>
+</div>
+
+
+@code {
+    private string title = "";
+    private string context="";
+    private bool showModal;
+    private string msg = "";
+    
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; } = null!;
+
+    private string? name;
+    private int id;
+    private IEnumerable<Claim>? userClaims;
+    private bool isLoggedIn;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState authState = await AuthState;
+        ClaimsPrincipal user = authState.User;
+        isLoggedIn = user.Identity != null;
+        
+        if (!isLoggedIn) return;
+        
+        userClaims = user.Claims;
+        name = user.Identity!.Name!;
+        
+        Claim idClaim = userClaims.FirstOrDefault(c => c.Type == "Id");
+        Console.WriteLine(name);
+        Console.WriteLine(idClaim.Value);
+        
+        string idValue = idClaim.Value;
+        id = int.Parse(idValue);
+
+    }
+    
+    
+    
+    private void Proceed()
+    {
+        showModal = false;
+        navMgr.NavigateTo("/ViewPosts");
+    }
+    
+    private async Task Create()
+    {
+        msg = "";
+       
+        if (string.IsNullOrEmpty(title))
+        {
+            msg = "Title cannot be empty!";
+            return;
+        }
+
+        try
+        {
+            PostCreationDto dto = new PostCreationDto(id, title, context);
+            await iPostService.CreatePost(dto);
+            showModal = true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            msg = e.Message;
+        }
+    }
+}
