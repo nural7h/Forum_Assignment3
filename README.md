@@ -1,6 +1,6 @@
-<h1 align="center" id="title">DotNet Assigment version 3</h1>
+<h1 align="center" id="title">.NET Assigment version 3</h1>
 
-<p id="description">This assignment involves creating a Reddit clone using the Dotnet framework Blazor and SQLite.</p>
+<p id="description">This assignment involves creating a Reddit clone using the .NET framework Blazor and SQLite.</p>
 
 <h2>🚀 Demo</h2>
 
