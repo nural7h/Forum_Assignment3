@@ -21,7 +21,7 @@ Here're some of the project's best features:
 
 <h2>🍰 Contribution:</h2>
 
-This assigment was made with the collaboration with : <a href="https://github.com/nural7h" target="_blank">Nural Hasan</a>
+This assigment was made with the collaboration of : <a href="https://github.com/nural7h" target="_blank">Nural Hasan</a>
 
   
   
